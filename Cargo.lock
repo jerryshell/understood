@@ -559,7 +559,7 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 [[package]]
 name = "similars_lib"
 version = "0.4.1"
-source = "git+https://github.com/jerryshell/similars#30266a3917e166b9d087453c1e64e0d3dd279567"
+source = "git+https://github.com/jerryshell/similars#20d79202745770f8e153ed26b30cdc15a3308d5b"
 dependencies = [
  "anyhow",
  "image",
