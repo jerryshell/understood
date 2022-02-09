@@ -14,7 +14,7 @@ fn main() {
 
 fn load_image_path_vec(path: &str) -> Vec<String> {
     std::fs::read_dir(path)
-        .unwrap()
+        .unwrap_or_else(|e| panic!("read_dir() :: error : {} :: path : {}", e, path))
         .map(|r| r.unwrap())
         .filter(|d| d.file_type().unwrap().is_file())
         .map(|d| d.path().into_os_string().into_string().unwrap())
