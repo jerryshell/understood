@@ -659,11 +659,13 @@ dependencies = [
 
 [[package]]
 name = "understood"
-version = "0.2.3"
+version = "0.2.4"
 dependencies = [
  "image",
+ "num_cpus",
  "rand",
  "similars_lib",
+ "threadpool",
 ]
 
 [[package]]

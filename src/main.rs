@@ -1,25 +1,28 @@
-use rand::prelude::*;
-use std::{
-    fs,
-    thread::{self, JoinHandle},
-};
+use rand::prelude::SliceRandom;
+use std::{fs, sync::mpsc::channel};
+use threadpool::ThreadPool;
 
 fn main() {
     let img_sample_path_vec = load_image_path_vec("img_sample");
     let img_source_path_vec = load_image_path_vec("img_source");
 
-    let join_handle_vec = img_sample_path_vec
-        .into_iter()
-        .map(|img_sample_path| {
-            let mut img_source_path_vec = img_source_path_vec.clone();
-            img_source_path_vec.shuffle(&mut rand::thread_rng());
-            thread::spawn(move || handle_img_sample_path(&img_sample_path, &img_source_path_vec))
-        })
-        .collect::<Vec<JoinHandle<()>>>();
+    let n_workers = num_cpus::get();
+    println!("n_workers {}", n_workers);
 
-    for join_handle in join_handle_vec {
-        join_handle.join().unwrap()
-    }
+    let pool = ThreadPool::new(n_workers);
+    let (tx, rx) = channel();
+
+    img_sample_path_vec.into_iter().for_each(|img_sample_path| {
+        let mut img_source_path_vec = img_source_path_vec.clone();
+        img_source_path_vec.shuffle(&mut rand::thread_rng());
+        let tx = tx.clone();
+        pool.execute(move || {
+            handle_img_sample_path(&img_sample_path, &img_source_path_vec);
+            tx.send(img_sample_path.to_string()).unwrap();
+        })
+    });
+
+    let _ = rx.iter().collect::<Vec<String>>();
 }
 
 fn load_image_path_vec(path: &str) -> Vec<String> {
