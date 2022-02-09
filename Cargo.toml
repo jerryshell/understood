@@ -1,6 +1,6 @@
 [package]
 name = "understood"
-version = "0.2.4"
+version = "0.3.0"
 edition = "2021"
 authors = ["github.com/jerryshell"]
 
@@ -10,6 +10,7 @@ similars_lib = { git = "https://github.com/jerryshell/similars" }
 rand = "0.8.4"
 threadpool = "1.8.1"
 num_cpus = "1.13.1"
+clap = { version = "3.0.14", features = ["derive"] }
 
 [profile.release]
 lto = true
