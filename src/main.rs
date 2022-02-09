@@ -49,8 +49,7 @@ fn handle_img_sample_path(img_sample_path: &str, img_source_path_vec: &[String])
                 println!("distance {:?}", distance);
                 if distance <= 16 {
                     let filename = img_source_path.split('/').last().unwrap();
-                    fs::rename(img_source_path.clone(), format!("img_result/{}", filename))
-                        .unwrap();
+                    fs::rename(img_source_path, format!("img_result/{}", filename)).unwrap();
                 }
             }
         }
