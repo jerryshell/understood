@@ -27,7 +27,7 @@ OPTIONS:
             [default: img_sample]
 
     -t, --hamming-threshold <HAMMING_THRESHOLD>
-            [default: 16]
+            [default: 10]
 
     -V, --version
             Print version information

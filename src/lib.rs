@@ -79,8 +79,8 @@ pub fn handle_img_sample_path(
 ) {
     img_source_path_vec.iter().for_each(|img_source_path| {
         match similars_lib::get_image_distance_by_path(
-            img_sample_path,
             img_source_path,
+            img_sample_path,
             8,
             8,
             false,

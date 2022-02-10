@@ -20,7 +20,7 @@ struct Args {
     )]
     n_workers: usize,
 
-    #[clap(short = 't', long, default_value_t = 16)]
+    #[clap(short = 't', long, default_value_t = 10)]
     hamming_threshold: usize,
 }
 
