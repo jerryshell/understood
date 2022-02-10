@@ -89,7 +89,12 @@ pub fn handle_img_sample_path(
                 if distance <= hamming_threshold {
                     let filename = img_source_path.split('/').last().unwrap();
                     fs::rename(img_source_path, format!("{}/{}", img_result_path, filename))
-                        .unwrap();
+                        .unwrap_or_else(|e| {
+                            panic!(
+                                "rename() :: error : {} :: img_result_path : {}",
+                                e, img_result_path
+                            )
+                        });
                 }
             }
         }
