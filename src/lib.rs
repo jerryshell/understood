@@ -3,8 +3,8 @@ use std::{
     fs,
     sync::{
         atomic::{AtomicUsize, Ordering},
-        mpsc::channel,
-        Arc,
+        mpsc::{channel, Sender},
+        Arc, Mutex,
     },
 };
 use threadpool::ThreadPool;
@@ -31,27 +31,34 @@ pub fn run(
 
     let pool = ThreadPool::new(n_workers);
     let (tx, rx) = channel();
+    let tx = Arc::new(Mutex::new(tx));
 
     img_sample_path_vec.into_iter().for_each(|img_sample_path| {
         let mut img_source_path_vec = img_source_path_vec.clone();
         img_source_path_vec.shuffle(&mut rand::thread_rng());
         let tx = tx.clone();
         let img_result_path = img_result_path.to_string();
-        let progress_current = progress_current.clone();
         pool.execute(move || {
             handle_img_sample_path(
                 &img_sample_path,
                 &img_source_path_vec,
                 &img_result_path,
                 hamming_threshold,
-                progress_max,
-                progress_current,
+                tx,
             );
-            tx.send(img_sample_path.to_string()).unwrap();
         })
     });
 
-    let _ = rx.iter().collect::<Vec<String>>();
+    loop {
+        let _ = rx.recv().unwrap();
+        progress_current.fetch_add(1, Ordering::SeqCst);
+        let progress_current = progress_current.load(Ordering::SeqCst);
+        let progress = progress_current as f32 / progress_max as f32 * 100f32;
+        println!("{}/{} {:.4}%", progress_current, progress_max, progress);
+        if progress >= 100f32 {
+            break;
+        }
+    }
 }
 
 pub fn load_image_path_vec(path: &str) -> Vec<String> {
@@ -68,15 +75,9 @@ pub fn handle_img_sample_path(
     img_source_path_vec: &[String],
     img_result_path: &str,
     hamming_threshold: usize,
-    progress_max: usize,
-    progress_current: Arc<AtomicUsize>,
+    tx: Arc<Mutex<Sender<String>>>,
 ) {
     img_source_path_vec.iter().for_each(|img_source_path| {
-        progress_current.fetch_add(1, Ordering::SeqCst);
-        let progress_current = progress_current.load(Ordering::SeqCst);
-        let progress = progress_current as f32 / progress_max as f32 * 100f32;
-        println!("{}/{} {:.4}%", progress_current, progress_max, progress);
-
         match similars_lib::get_image_distance_by_path(
             img_sample_path,
             img_source_path,
@@ -98,5 +99,10 @@ pub fn handle_img_sample_path(
                 }
             }
         }
+
+        tx.lock()
+            .unwrap()
+            .send(img_source_path.to_string())
+            .unwrap();
     })
 }
