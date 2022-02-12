@@ -16,8 +16,8 @@ pub fn run(
     n_workers: usize,
     hamming_threshold: usize,
 ) {
-    let img_sample_path_vec = load_image_path_vec(img_sample_path);
-    let img_source_path_vec = load_image_path_vec(img_source_path);
+    let img_sample_path_vec = load_image_path_vec(img_sample_path).unwrap();
+    let img_source_path_vec = load_image_path_vec(img_source_path).unwrap();
 
     let progress_max = img_sample_path_vec.len() * img_source_path_vec.len();
     let progress_current = Arc::new(AtomicUsize::new(0));
@@ -50,7 +50,7 @@ pub fn run(
     });
 
     loop {
-        let _ = rx.recv().unwrap();
+        let _ = rx.recv();
         progress_current.fetch_add(1, Ordering::SeqCst);
         let progress_current = progress_current.load(Ordering::SeqCst);
         let progress = progress_current as f32 / progress_max as f32 * 100f32;
@@ -61,13 +61,18 @@ pub fn run(
     }
 }
 
-pub fn load_image_path_vec(path: &str) -> Vec<String> {
-    fs::read_dir(path)
-        .unwrap_or_else(|e| panic!("read_dir() :: error : {} :: path : {}", e, path))
-        .map(|r| r.unwrap())
-        .filter(|d| d.file_type().unwrap().is_file())
-        .map(|d| d.path().into_os_string().into_string().unwrap())
-        .collect::<Vec<String>>()
+pub fn load_image_path_vec(path: &str) -> Result<Vec<String>, String> {
+    match fs::read_dir(path) {
+        Ok(dir) => {
+            let result = dir
+                .map(|r| r.unwrap())
+                .filter(|d| d.file_type().unwrap().is_file())
+                .map(|d| d.path().into_os_string().into_string().unwrap())
+                .collect::<Vec<String>>();
+            Ok(result)
+        }
+        Err(e) => Err(e.to_string()),
+    }
 }
 
 pub fn handle_img_sample_path(
@@ -85,24 +90,28 @@ pub fn handle_img_sample_path(
             8,
             false,
         ) {
-            Err(_) => {}
+            Err(e) => {
+                println!("get_image_distance_by_path() :: error : {}", e);
+            }
             Ok(distance) => {
                 if distance <= hamming_threshold {
-                    let filename = img_source_path.split('/').last().unwrap();
-                    fs::rename(img_source_path, format!("{}/{}", img_result_path, filename))
-                        .unwrap_or_else(|e| {
-                            panic!(
+                    if let Some(filename) = img_source_path.split('/').last() {
+                        let new_path = format!("{}/{}", img_result_path, filename);
+                        if let Err(e) = fs::rename(img_source_path, new_path) {
+                            println!(
                                 "rename() :: error : {} :: img_result_path : {}",
                                 e, img_result_path
-                            )
-                        });
+                            );
+                        }
+                    }
                 }
             }
         }
 
-        tx.lock()
-            .unwrap()
-            .send(img_source_path.to_string())
-            .unwrap();
+        if let Ok(sender) = tx.lock() {
+            if let Err(e) = sender.send(img_source_path.to_string()) {
+                println!("sender.send() :: error : {}", e);
+            }
+        }
     })
 }
