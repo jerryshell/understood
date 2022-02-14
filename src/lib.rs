@@ -1,10 +1,7 @@
 use rand::prelude::SliceRandom;
 use std::{
     fs,
-    sync::{
-        mpsc::{channel, Sender},
-        Arc, Mutex,
-    },
+    sync::mpsc::{channel, Sender},
 };
 use threadpool::ThreadPool;
 
@@ -29,8 +26,7 @@ pub fn run(
     println!("n_workers {}", n_workers);
 
     let pool = ThreadPool::new(n_workers);
-    let (tx, rx) = channel();
-    let tx = Arc::new(Mutex::new(tx));
+    let (tx, rx) = channel::<String>();
 
     img_sample_path_vec.into_iter().for_each(|img_sample_path| {
         let mut img_source_path_vec = img_source_path_vec.clone();
@@ -47,15 +43,15 @@ pub fn run(
             );
         })
     });
+    drop(tx);
 
-    loop {
-        let _ = rx.recv();
+    for result in rx {
         progress_current += 1;
         let progress = progress_current as f32 / progress_max as f32 * 100f32;
-        println!("{}/{} {:.4}%", progress_current, progress_max, progress);
-        if progress >= 100f32 {
-            break;
-        }
+        println!(
+            "{}/{}\t{:.4}%\t{}",
+            progress_current, progress_max, progress, result
+        );
     }
 }
 
@@ -78,7 +74,7 @@ pub fn handle_img_sample_path(
     img_source_path_vec: &[String],
     img_result_path: &str,
     hamming_threshold: usize,
-    tx: Arc<Mutex<Sender<String>>>,
+    tx: Sender<String>,
 ) {
     img_source_path_vec.iter().for_each(|img_source_path| {
         match similars_lib::get_image_distance_by_path(
@@ -106,10 +102,8 @@ pub fn handle_img_sample_path(
             }
         }
 
-        if let Ok(sender) = tx.lock() {
-            if let Err(e) = sender.send(img_source_path.to_string()) {
-                println!("sender.send() :: error : {}", e);
-            }
+        if let Err(e) = tx.send(img_source_path.to_string()) {
+            println!("sender.send() :: error : {}", e);
         }
     })
 }
