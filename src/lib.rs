@@ -2,7 +2,6 @@ use rand::prelude::SliceRandom;
 use std::{
     fs,
     sync::{
-        atomic::{AtomicUsize, Ordering},
         mpsc::{channel, Sender},
         Arc, Mutex,
     },
@@ -20,7 +19,7 @@ pub fn run(
     let img_source_path_vec = load_image_path_vec(img_source_path).unwrap();
 
     let progress_max = img_sample_path_vec.len() * img_source_path_vec.len();
-    let progress_current = Arc::new(AtomicUsize::new(0));
+    let mut progress_current = 0usize;
 
     let n_workers = if n_workers == 0 {
         num_cpus::get()
@@ -51,8 +50,7 @@ pub fn run(
 
     loop {
         let _ = rx.recv();
-        progress_current.fetch_add(1, Ordering::SeqCst);
-        let progress_current = progress_current.load(Ordering::SeqCst);
+        progress_current += 1;
         let progress = progress_current as f32 / progress_max as f32 * 100f32;
         println!("{}/{} {:.4}%", progress_current, progress_max, progress);
         if progress >= 100f32 {
