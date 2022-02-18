@@ -844,7 +844,7 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 [[package]]
 name = "similars_lib"
 version = "0.4.2"
-source = "git+https://github.com/jerryshell/similars#958e187a12bede0bed8448fc48dc0d9409848be3"
+source = "git+https://github.com/jerryshell/similars#fac4786fb8d2b502a3ed2547317fcfa815a53695"
 dependencies = [
  "anyhow",
  "cached",
@@ -926,7 +926,7 @@ dependencies = [
 
 [[package]]
 name = "understood"
-version = "0.3.6"
+version = "0.3.7"
 dependencies = [
  "clap",
  "image",
