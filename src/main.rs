@@ -22,6 +22,12 @@ struct Args {
 
     #[clap(short = 't', long, default_value_t = 10)]
     hamming_threshold: usize,
+
+    #[clap(
+        long,
+        help = "If --clean-flag is explicitly specified, images in the wrong format will be deleted automatically"
+    )]
+    clean_flag: bool,
 }
 
 fn main() {
@@ -32,5 +38,6 @@ fn main() {
         &args.img_result_path,
         args.n_workers,
         args.hamming_threshold,
+        args.clean_flag,
     );
 }

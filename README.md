@@ -11,6 +11,10 @@ USAGE:
     understood [OPTIONS]
 
 OPTIONS:
+        --clean-flag
+            If --clean-flag is explicitly specified, images in the wrong format will be deleted
+            automatically
+
     -h, --help
             Print help information
 

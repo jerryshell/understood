@@ -11,6 +11,7 @@ pub fn run(
     img_result_path: &str,
     n_workers: usize,
     hamming_threshold: usize,
+    clean_flag: bool,
 ) {
     let img_sample_path_vec = load_image_path_vec(img_sample_path).unwrap();
     let img_source_path_vec = load_image_path_vec(img_source_path).unwrap();
@@ -39,6 +40,7 @@ pub fn run(
                 &img_source_path_vec,
                 &img_result_path,
                 hamming_threshold,
+                clean_flag,
                 tx,
             );
         })
@@ -74,6 +76,7 @@ pub fn handle_img_sample_path(
     img_source_path_vec: &[String],
     img_result_path: &str,
     hamming_threshold: usize,
+    clean_flag: bool,
     tx: Sender<String>,
 ) {
     img_source_path_vec.iter().for_each(|img_source_path| {
@@ -83,6 +86,7 @@ pub fn handle_img_sample_path(
             8,
             8,
             false,
+            clean_flag,
         ) {
             Err(e) => {
                 println!("get_image_distance_by_path() :: error : {}", e);
