@@ -10,7 +10,7 @@ similars_lib = { git = "https://github.com/jerryshell/similars" }
 rand = "0.8.5"
 threadpool = "1.8.1"
 num_cpus = "1.15.0"
-clap = { version = "4.1.1", features = ["derive"] }
+clap = { version = "4.1.4", features = ["derive"] }
 
 [profile.release]
 lto = true
