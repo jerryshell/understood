@@ -1,17 +1,20 @@
 [package]
 name = "understood"
-version = "0.3.10"
+version = "0.3.11"
 edition = "2021"
 authors = ["github.com/jerryshell"]
 
 [dependencies]
-image = "0.24.6"
+image = "*"
 similars_lib = { git = "https://github.com/jerryshell/similars" }
-rand = "0.8.5"
-threadpool = "1.8.1"
-num_cpus = "1.15.0"
-clap = { version = "4.2.1", features = ["derive"] }
+rand = "*"
+threadpool = "*"
+num_cpus = "*"
+clap = { version = "*", features = ["derive"] }
 
 [profile.release]
 lto = true
 strip = true
+opt-level = "z"
+panic = "abort"
+codegen-units = 1
