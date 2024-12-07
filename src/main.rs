@@ -22,8 +22,8 @@ fn main() {
     tracing_subscriber::fmt::init();
     let args = Args::parse();
     understood::run(
-        args.img_sample_path.into(),
-        args.img_source_path.into(),
+        &args.img_sample_path,
+        &args.img_source_path,
         args.img_result_path.into(),
         args.hamming_threshold,
         args.clean_flag,
