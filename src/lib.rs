@@ -55,14 +55,19 @@ pub fn handle_img_sample_path<P>(
                 if clean_flag {
                     _ = std::fs::remove_file(img_source_path)
                 }
-                tracing::error!("{:?},{:?}", e, img_source_path);
+                tracing::error!(
+                    "{:?}, sample:{:?}, source:{:?}",
+                    e,
+                    img_sample_path,
+                    img_source_path
+                );
             }
             Ok(distance) => {
                 if distance <= hamming_threshold {
                     if let Some(filename) = img_source_path.file_name() {
                         let new_path = img_result_path.join(filename);
                         if let Err(e) = std::fs::rename(img_source_path, new_path) {
-                            tracing::error!("{:?},{:?}", e, img_result_path);
+                            tracing::error!("{:?}, {:?}", e, img_result_path);
                         }
                     }
                 }
