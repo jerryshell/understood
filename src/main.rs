@@ -1,7 +1,7 @@
 use clap::Parser;
 
 #[derive(Parser, Debug)]
-#[clap(author, version, about, long_about = None)]
+#[clap(version)]
 struct Args {
     #[clap(short = 's', long, default_value = "img_sample")]
     img_sample_path: String,
@@ -33,9 +33,9 @@ struct Args {
 fn main() {
     let args = Args::parse();
     understood::run(
-        &args.img_sample_path,
-        &args.img_source_path,
-        &args.img_result_path,
+        args.img_sample_path.into(),
+        args.img_source_path.into(),
+        args.img_result_path.into(),
         args.n_workers,
         args.hamming_threshold,
         args.clean_flag,

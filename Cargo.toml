@@ -2,7 +2,6 @@
 name = "understood"
 version = "0.3.11"
 edition = "2021"
-authors = ["github.com/jerryshell"]
 
 [dependencies]
 image = "*"
@@ -11,10 +10,11 @@ rand = "*"
 threadpool = "*"
 num_cpus = "*"
 clap = { version = "*", features = ["derive"] }
+tracing = "*"
+tracing-subscriber = "*"
 
 [profile.release]
 lto = true
 strip = true
-opt-level = "z"
 panic = "abort"
 codegen-units = 1

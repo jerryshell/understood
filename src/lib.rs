@@ -1,14 +1,10 @@
 use rand::prelude::SliceRandom;
-use std::{
-    fs,
-    sync::mpsc::{channel, Sender},
-};
 use threadpool::ThreadPool;
 
 pub fn run(
-    img_sample_path: &str,
-    img_source_path: &str,
-    img_result_path: &str,
+    img_sample_path: std::path::PathBuf,
+    img_source_path: std::path::PathBuf,
+    img_result_path: std::path::PathBuf,
     n_workers: usize,
     hamming_threshold: usize,
     clean_flag: bool,
@@ -27,18 +23,19 @@ pub fn run(
     println!("n_workers {}", n_workers);
 
     let pool = ThreadPool::new(n_workers);
-    let (tx, rx) = channel::<String>();
+    let (tx, rx) = std::sync::mpsc::channel::<std::path::PathBuf>();
 
     img_sample_path_vec.into_iter().for_each(|img_sample_path| {
+        let img_sample_path = img_sample_path.clone();
+        let img_result_path = img_result_path.clone();
         let mut img_source_path_vec = img_source_path_vec.clone();
         img_source_path_vec.shuffle(&mut rand::thread_rng());
         let tx = tx.clone();
-        let img_result_path = img_result_path.to_string();
         pool.execute(move || {
             handle_img_sample_path(
-                &img_sample_path,
-                &img_source_path_vec,
-                &img_result_path,
+                img_sample_path,
+                img_source_path_vec,
+                img_result_path,
                 hamming_threshold,
                 clean_flag,
                 tx,
@@ -51,53 +48,47 @@ pub fn run(
         progress_current += 1;
         let progress = progress_current as f32 / progress_max as f32 * 100f32;
         println!(
-            "{}/{}\t{:.4}%\t{}",
+            "{}/{}\t{:.4}%\t{:?}",
             progress_current, progress_max, progress, result
         );
     }
 }
 
-pub fn load_image_path_vec(path: &str) -> Result<Vec<String>, String> {
-    match fs::read_dir(path) {
-        Ok(dir) => {
-            let result = dir
-                .map(|r| r.unwrap())
-                .filter(|d| d.file_type().unwrap().is_file())
-                .map(|d| d.path().into_os_string().into_string().unwrap())
-                .collect::<Vec<String>>();
-            Ok(result)
-        }
-        Err(e) => Err(e.to_string()),
-    }
+pub fn load_image_path_vec(
+    path: std::path::PathBuf,
+) -> Result<Vec<std::path::PathBuf>, std::io::Error> {
+    let image_path_vec = std::fs::read_dir(path)?
+        .filter_map(|entry| match entry {
+            Ok(entry) if entry.file_type().ok()?.is_file() => Some(entry.path()),
+            _ => None,
+        })
+        .collect::<Vec<std::path::PathBuf>>();
+    Ok(image_path_vec)
 }
 
 pub fn handle_img_sample_path(
-    img_sample_path: &str,
-    img_source_path_vec: &[String],
-    img_result_path: &str,
+    img_sample_path: std::path::PathBuf,
+    img_source_path_vec: Vec<std::path::PathBuf>,
+    img_result_path: std::path::PathBuf,
     hamming_threshold: usize,
     clean_flag: bool,
-    tx: Sender<String>,
+    tx: std::sync::mpsc::Sender<std::path::PathBuf>,
 ) {
     img_source_path_vec.iter().for_each(|img_source_path| {
-        match similars_lib::get_image_distance_by_path(
-            img_source_path,
-            img_sample_path,
-            8,
-            8,
-            false,
-            clean_flag,
-        ) {
+        match similars_lib::image_distance(img_source_path, &img_sample_path, 8, 8) {
             Err(e) => {
-                println!("get_image_distance_by_path() :: error : {}", e);
+                if clean_flag {
+                    _ = std::fs::remove_file(img_source_path)
+                }
+                eprintln!("get_image_distance_by_path()::error:{:?}", e);
             }
             Ok(distance) => {
                 if distance <= hamming_threshold {
-                    if let Some(filename) = img_source_path.split('/').last() {
-                        let new_path = format!("{}/{}", img_result_path, filename);
-                        if let Err(e) = fs::rename(img_source_path, new_path) {
-                            println!(
-                                "rename() :: error : {} :: img_result_path : {}",
+                    if let Some(filename) = img_source_path.file_name() {
+                        let new_path = img_result_path.join(filename);
+                        if let Err(e) = std::fs::rename(img_source_path, new_path) {
+                            eprintln!(
+                                "rename()::error:{:?},img_result_path:{:?}",
                                 e, img_result_path
                             );
                         }
@@ -106,8 +97,8 @@ pub fn handle_img_sample_path(
             }
         }
 
-        if let Err(e) = tx.send(img_source_path.to_string()) {
-            println!("sender.send() :: error : {}", e);
+        if let Err(e) = tx.send(img_source_path.clone()) {
+            eprintln!("sender.send()::error:{:?}", e);
         }
     })
 }
