@@ -13,7 +13,7 @@ struct Args {
     hamming_threshold: usize,
     #[clap(
         long,
-        help = "If --clean-flag is explicitly specified, images in the wrong format will be deleted automatically"
+        help = "If the --clean-flag is explicitly specified, incorrectly formatted images will be automatically deleted"
     )]
     clean_flag: bool,
 }

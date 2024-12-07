@@ -1,45 +1,38 @@
 # undeRStood
 
-undeRStood is a picture classification tool.
+_undeRStood_ is an image classification tool written in Rust 🦀
 
-It uses the pictures in the `img_sample` folder as specimens to find similar pictures in the `img_source` folder, and moves the similar pictures to the `img_result` folder.
+It uses images in the `img_sample` folder as samples, finds similar images in the `img_source` folder, and then moves the similar images to the `img_result` folder
 
-## Usage
+## How to use
+
+```bash
+cargo install --git https://github.com/jerryshell/understood
+```
 
 ```
-USAGE:
-    understood [OPTIONS]
+Usage: understood [OPTIONS]
 
-OPTIONS:
-        --clean-flag
-            If --clean-flag is explicitly specified, images in the wrong format will be deleted
-            automatically
-
-    -h, --help
-            Print help information
-
-    -i, --img-source-path <IMG_SOURCE_PATH>
-            [default: img_source]
-
-    -n, --n-workers <N_WORKERS>
-            If n_workers is 0, the number of cpu cores is automatically used [default: 0]
-
-    -o, --img-result-path <IMG_RESULT_PATH>
-            [default: img_result]
-
-    -s, --img-sample-path <IMG_SAMPLE_PATH>
-            [default: img_sample]
-
-    -t, --hamming-threshold <HAMMING_THRESHOLD>
-            [default: 10]
-
-    -V, --version
-            Print version information
+Options:
+  -s, --img-sample-path <IMG_SAMPLE_PATH>
+          [default: img_sample]
+  -i, --img-source-path <IMG_SOURCE_PATH>
+          [default: img_source]
+  -o, --img-result-path <IMG_RESULT_PATH>
+          [default: img_result]
+  -t, --hamming-threshold <HAMMING_THRESHOLD>
+          [default: 10]
+      --clean-flag
+          If the --clean-flag is explicitly specified, incorrectly formatted images will be automatically deleted
+  -h, --help
+          Print help
+  -V, --version
+          Print version
 ```
 
 ## References
 
-* [https://github.com/jerryshell/similars](https://github.com/jerryshell/similars)
+- [jerryshell/similars](https://github.com/jerryshell/similars)
 
 ## License
 
