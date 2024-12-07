@@ -1,7 +1,7 @@
 pub fn run<P>(
     img_sample_path: P,
     img_source_path: P,
-    img_result_path: std::path::PathBuf,
+    img_result_path: P,
     hamming_threshold: usize,
     clean_flag: bool,
 ) where
@@ -9,15 +9,15 @@ pub fn run<P>(
 {
     let img_sample_path_vec = load_image_path_vec(img_sample_path).unwrap();
     let img_source_path_vec = load_image_path_vec(img_source_path).unwrap();
+    let img_result_path = img_result_path.as_ref();
     let progress_max = img_sample_path_vec.len() * img_source_path_vec.len();
     let mut progress_current = 0usize;
     img_sample_path_vec.into_iter().for_each(|img_sample_path| {
         let img_source_path_vec = img_source_path_vec.clone();
-        let img_result_path = img_result_path.clone();
         handle_img_sample_path(
             img_sample_path,
             img_source_path_vec,
-            img_result_path,
+            img_result_path.to_path_buf(),
             hamming_threshold,
             clean_flag,
         );
@@ -42,7 +42,7 @@ where
             Ok(entry) if entry.file_type().ok()?.is_file() => Some(entry.path()),
             _ => None,
         })
-        .collect::<Vec<std::path::PathBuf>>();
+        .collect::<Vec<_>>();
     Ok(image_path_vec)
 }
 

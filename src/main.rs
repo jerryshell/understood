@@ -24,7 +24,7 @@ fn main() {
     understood::run(
         &args.img_sample_path,
         &args.img_source_path,
-        args.img_result_path.into(),
+        &args.img_result_path,
         args.hamming_threshold,
         args.clean_flag,
     );
