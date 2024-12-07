@@ -1077,10 +1077,9 @@ dependencies = [
 
 [[package]]
 name = "understood"
-version = "0.3.11"
+version = "0.4.0"
 dependencies = [
  "clap",
- "image",
  "similars_lib",
  "tracing",
  "tracing-subscriber",

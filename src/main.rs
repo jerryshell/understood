@@ -18,7 +18,7 @@ struct Args {
     clean_flag: bool,
 }
 
-fn main() {
+fn main() -> Result<(), std::io::Error> {
     tracing_subscriber::fmt::init();
     let args = Args::parse();
     understood::run(
@@ -27,5 +27,5 @@ fn main() {
         &args.img_result_path,
         args.hamming_threshold,
         args.clean_flag,
-    );
+    )
 }
