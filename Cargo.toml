@@ -5,13 +5,10 @@ edition = "2021"
 
 [dependencies]
 image = "*"
-similars_lib = { git = "https://github.com/jerryshell/similars" }
-rand = "*"
-threadpool = "*"
-num_cpus = "*"
-clap = { version = "*", features = ["derive"] }
 tracing = "*"
 tracing-subscriber = "*"
+clap = { version = "*", features = ["derive"] }
+similars_lib = { git = "https://github.com/jerryshell/similars" }
 
 [profile.release]
 lto = true
